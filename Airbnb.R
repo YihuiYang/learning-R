@@ -53,11 +53,24 @@ df_users %>%
 # There are 213,451 observations. Data is unique on id column.
 
 # 4.2 Age
+# quantile function
 df_users %>%
   select(age) %>%
-  arrange(desc(age)) %>%
   as.matrix() %>%
   quantile(probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1), na.rm=T)
 
+# define my quantile function
+MyQuantile <- function(x, y) {
+  newx <- sort(x, na.last=NA)
+  l <- length(newx)
+  q <- (l - 1) * y + 1
+  floorq <- floor(q)
+  o <- newx[floorq] + (newx[pmin(l, floorq + 1)] - newx[floorq]) * (floorq - q)
+  names(o) <- paste(y*100, "%", sep="")
+  return(o)
+}
 
-
+df_users %>%
+  select(age) %>%
+  as.matrix() %>%
+  MyQuantile(y=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
