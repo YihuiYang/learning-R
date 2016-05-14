@@ -61,11 +61,11 @@ df_users %>%
 
 # define my quantile function
 MyQuantile <- function(x, y) {
-  newx <- sort(x, na.last=NA)
-  l <- length(newx)
+  new.x <- sort(x, na.last=NA)
+  l <- length(new.x)
   q <- (l - 1) * y + 1
-  floorq <- floor(q)
-  o <- newx[floorq] + (newx[pmin(l, floorq + 1)] - newx[floorq]) * (floorq - q)
+  floor.q <- floor(q)
+  o <- new.x[floor.q] + (new.x[pmin(l, floor.q + 1)] - new.x[floor.q]) * (floor.q - q)
   names(o) <- paste(y*100, "%", sep="")
   return(o)
 }
@@ -74,3 +74,33 @@ df_users %>%
   select(age) %>%
   as.matrix() %>%
   MyQuantile(y=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
+
+# define my qqnorm function
+MyQQnorm <- function(y, a=0, b=1) {
+  new.y <- sort(y, na.last=NA)
+  l.y <- length(new.y)
+  q.norm <- sort(rnorm(l.y, mean=a, sd=b))
+  plot(q.norm, new.y, main="Normal Q-Q Plot", xlab="Theoretical Quantiles", ylab="Sample Quantiles")
+}
+
+MyQQnorm(user_age)
+
+
+# define my qqplot function
+MyQQplot <- function(x, y) {
+  new.x <- sort(x, na.last=NA)
+  new.y <- sort(y, na.last=NA)
+  l.x <- length(new.x)
+  l.y <- length(new.y)
+  if(l.x <= l.y) {
+    q.x <- new.x
+    q.y <- MyQuantile(new.y, (c(1:l.x) - 1) / (l.x - 1))
+  } else {
+    q.y <- new.y
+    q.x <- MyQuantile(new.x, (c(1:l.y) - 1) / (l.y - 1))
+  }
+  plot(q.x, q.y, main="Q-Q Plot", xlab=deparse(substitute(x)), ylab=deparse(substitute(y)))
+}
+
+MyQQplot(user_age, rnorm(100, 0, 3))
+qqplot(user_age, rnorm(100, 0, 3))
